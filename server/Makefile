@@ -2,11 +2,11 @@
 CROSS_COMPILE ?=
 CC ?= $(CROSS_COMPILE)gcc
 INSTALL ?= install
-CFLAGS ?= -Wall -Wextra -Werror -O2
-LDFLAGS ?=
-LDLIBS ?=
+CFLAGS ?= -Wall -Wextra -Werror -O2 -Wno-maybe-uninitialized
+LDFLAGS ?= -g -rdynamic
+LDLIBS ?= -pthread -lrt
 TARGET = aesdsocket
-SRCS = aesdsocket.c
+SRCS = aesdsocket.c hashmap.c thread_pool.c
 OBJS = $(SRCS:.c=.o)
 
 # Installation directory
@@ -17,11 +17,12 @@ all: $(TARGET)
 
 # Link the object files to create the final executable
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $^ $(LDFLAGS) $(LDLIBS) -o $@ 
+#	strip --strip-all $@
 
 # Compile the C source files into object files
 %.o: %.c
-	$(CC) -c $(LDLAGS) $(LDLIBS) $^ -o $@
+	$(CC) -c $(CFLAGS) $^ -o $@
 
 # Clean target: remove the application and object files
 clean:
